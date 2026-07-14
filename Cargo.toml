@@ -1,0 +1,15 @@
+[package]
+name = "octri-monitoring"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Standalone application monitoring and error reporting for Rust"
+license = "MIT"
+homepage = "https://octri.dev"
+
+[dependencies]
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+rand = "0.8"
+serde = "1"
+serde_json = "1"
+ureq = { version = "2.12", default-features = false, features = ["json", "tls"] }
