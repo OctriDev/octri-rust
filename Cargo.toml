@@ -6,6 +6,11 @@ rust-version = "1.70"
 description = "Standalone application monitoring and error reporting for Rust"
 license = "MIT"
 homepage = "https://octri.dev"
+repository = "https://github.com/octridev/octri-rust"
+documentation = "https://docs.octri.dev/docs"
+readme = "README.md"
+keywords = ["monitoring", "observability", "error-tracking", "octri", "apm"]
+categories = ["development-tools::debugging", "web-programming"]
 
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
