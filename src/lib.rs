@@ -268,6 +268,30 @@ const SCRUB_KEYS: &[&str] = &[
     "creditcard",
     "cvv",
     "ssn",
+    // Direct identifiers, matched the same way: `phone` also covers `phoneNumber`
+    // and `customerPhone`, `address` covers `ipAddress` and `billingAddress`. Bare
+    // `ip`, `url` and `name` are deliberately absent: as substrings they would
+    // take `zip`, `curl` and the error name with them.
+    "email",
+    "phone",
+    "address",
+    "firstname",
+    "lastname",
+    "fullname",
+    "username",
+    "useragent",
+    "passport",
+    "taxid",
+    "nationalid",
+    "dateofbirth",
+    "birthdate",
+    "birthday",
+    "postalcode",
+    "zipcode",
+    "latitude",
+    "longitude",
+    "socialsecurity",
+    "ipaddress",
 ];
 
 const REDACTED: &str = "[redacted]";
@@ -771,17 +795,25 @@ mod tests {
     }
 
     #[test]
-    fn keeps_user_identity_but_not_user_credentials() {
+    // The identity the dashboard keys on is `id`, which survives. Direct
+    // identifiers under the user are redacted like they are in every generated SDK.
+    fn keeps_user_id_but_not_user_credentials_or_identifiers() {
         let _guard = scrub_settings();
         let payload = scrub_payload(json!({
             "message": "no account for ada@example.com",
-            "user": { "id": "u_1", "email": "ada@example.com", "session_token": "st_1" },
+            "user": { "id": "u_1", "email": "ada@example.com", "session_token": "st_1", "customerPhone": "+1 555 0100" },
+            "context": { "billingAddress": { "line1": "1 High St" }, "avatarUrl": "https://cdn.example.com/a.png", "queryTimeMs": 12 },
         }))
         .expect("payload");
 
         assert_eq!(payload["message"], json!("no account for [redacted]"));
-        assert_eq!(payload["user"]["email"], json!("ada@example.com"));
+        assert_eq!(payload["user"]["id"], json!("u_1"));
+        assert_eq!(payload["user"]["email"], json!(REDACTED));
         assert_eq!(payload["user"]["session_token"], json!(REDACTED));
+        assert_eq!(payload["user"]["customerPhone"], json!(REDACTED));
+        assert_eq!(payload["context"]["billingAddress"], json!(REDACTED));
+        assert_eq!(payload["context"]["avatarUrl"], json!("https://cdn.example.com/a.png"));
+        assert_eq!(payload["context"]["queryTimeMs"], json!(12));
     }
 
     #[test]
